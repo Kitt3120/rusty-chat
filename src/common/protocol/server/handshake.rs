@@ -1,39 +1,35 @@
-use super::super::{client, server};
+use super::{
+    super::{client, server},
+    HandshakeError,
+};
 use std::{
-    io::{Error, Read, Write},
+    io::{Read, Write},
     net::TcpStream,
 };
 
-pub enum HandshakeError {
-    IoError(Error),
-    ClientMessageParseError(client::MessageParseError),
-    UnexpectedClientMessage(client::Message),
-    AuthenticationFailed(String),
-}
-
-pub struct ClientHandshakeArguments<'a> {
+pub struct HandshakeArguments<'a> {
     taken_usernames: &'a Vec<String>,
 }
 
-impl<'a> ClientHandshakeArguments<'a> {
-    pub fn new(taken_usernames: &'a Vec<String>) -> ClientHandshakeArguments<'a> {
-        ClientHandshakeArguments { taken_usernames }
+impl<'a> HandshakeArguments<'a> {
+    pub fn new(taken_usernames: &'a Vec<String>) -> HandshakeArguments<'a> {
+        HandshakeArguments { taken_usernames }
     }
 }
 
-pub struct ClientHandshake {
+pub struct Handshake {
     username: String,
 }
 
-impl ClientHandshake {
-    fn new(username: String) -> ClientHandshake {
-        ClientHandshake { username }
+impl Handshake {
+    fn new(username: String) -> Handshake {
+        Handshake { username }
     }
 
     pub fn perform(
         mut tcp_stream: &TcpStream,
-        arguments: ClientHandshakeArguments,
-    ) -> Result<ClientHandshake, HandshakeError> {
+        arguments: HandshakeArguments,
+    ) -> Result<Handshake, HandshakeError> {
         let mut username_request_buffer = Vec::new();
 
         tcp_stream
@@ -41,11 +37,11 @@ impl ClientHandshake {
             .map_err(|err| HandshakeError::IoError(err))?;
 
         let username_request = client::Message::from_bytes(&username_request_buffer)
-            .map_err(|err| HandshakeError::ClientMessageParseError(err))?;
+            .map_err(|err| HandshakeError::MessageParseError(err))?;
 
         let username = match username_request {
             client::Message::RequestUsername(username) => username,
-            other => return Err(HandshakeError::UnexpectedClientMessage(other)),
+            other => return Err(HandshakeError::UnexpectedMessage(other)),
         };
 
         if arguments.taken_usernames.contains(&username) {
@@ -69,6 +65,6 @@ impl ClientHandshake {
             .write_all(&authenticated_message.as_bytes())
             .map_err(|err| HandshakeError::IoError(err))?;
 
-        Ok(ClientHandshake::new(username))
+        Ok(Handshake::new(username))
     }
 }

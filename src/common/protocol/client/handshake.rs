@@ -1,15 +1,11 @@
-use super::super::{client, server};
+use super::{
+    super::{client, server},
+    HandshakeError,
+};
 use std::{
-    io::{Error, Read, Write},
+    io::{Read, Write},
     net::TcpStream,
 };
-
-pub enum HandshakeError {
-    IoError(Error),
-    ServerMessageParseError(server::MessageParseError),
-    UnexpectedServerMessage(server::Message),
-    AuthenticationFailed(String),
-}
 
 pub struct HandshakeArguments {
     username: String,
@@ -47,12 +43,12 @@ impl Handshake {
             .map_err(|err| HandshakeError::IoError(err))?;
 
         let message = server::Message::from_bytes(&handshake_result_buffer)
-            .map_err(|err| HandshakeError::ServerMessageParseError(err))?;
+            .map_err(|err| HandshakeError::MessageParseError(err))?;
 
         match message {
             server::Message::Authenticated => Ok(Handshake::new(arguments.username)),
             server::Message::End(reason) => Err(HandshakeError::AuthenticationFailed(reason)),
-            other => Err(HandshakeError::UnexpectedServerMessage(other)),
+            other => Err(HandshakeError::UnexpectedMessage(other)),
         }
     }
 }

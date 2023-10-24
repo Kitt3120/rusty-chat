@@ -1,37 +1,40 @@
-use std::{fmt::Display, string::FromUtf8Error};
-
-pub enum MessageParseError {
-    MessageEmpty,
-    UnexcpetedEndOfMessage,
-    UnknownKind(u8),
-    StringParse(String, FromUtf8Error),
-}
-
-impl Display for MessageParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            MessageParseError::MessageEmpty => write!(f, "Message was empty"),
-            MessageParseError::UnexcpetedEndOfMessage => {
-                write!(f, "Unexpected end of message")
-            }
-            MessageParseError::UnknownKind(kind) => {
-                write!(f, "Message had unknown kind: {}", kind)
-            }
-            MessageParseError::StringParse(value, err) => {
-                write!(
-                    f,
-                    "Failed to parse string expected for value {}: {}",
-                    value, err
-                )
-            }
-        }
-    }
-}
+use super::super::error::MessageParseError;
+use std::fmt::{Debug, Display};
 
 pub enum Message {
     RequestUsername(String),
     Chat(String),
     End(String),
+}
+
+impl Clone for Message {
+    fn clone(&self) -> Self {
+        match self {
+            Message::RequestUsername(username) => Message::RequestUsername(username.clone()),
+            Message::Chat(message) => Message::Chat(message.clone()),
+            Message::End(reason) => Message::End(reason.clone()),
+        }
+    }
+}
+
+impl Debug for Message {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Message::RequestUsername(username) => write!(f, "RequestUsername({:?})", username),
+            Message::Chat(message) => write!(f, "Chat({:?})", message),
+            Message::End(reason) => write!(f, "End({:?})", reason),
+        }
+    }
+}
+
+impl Display for Message {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Message::RequestUsername(username) => write!(f, "RequestUsername({})", username),
+            Message::Chat(message) => write!(f, "Chat({})", message),
+            Message::End(reason) => write!(f, "End({})", reason),
+        }
+    }
 }
 
 impl Message {
@@ -143,7 +146,6 @@ impl From<&mut Message> for Vec<u8> {
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
 
     #[test]
