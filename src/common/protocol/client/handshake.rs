@@ -30,10 +30,10 @@ impl Handshake {
         mut tcp_stream: &TcpStream,
         arguments: HandshakeArguments,
     ) -> Result<Handshake, HandshakeError> {
-        let username_request_message = client::Message::RequestUsername(arguments.username);
+        let authentication_message = client::Message::Authenticate(arguments.username);
 
         tcp_stream
-            .write_all(&username_request_message.as_bytes())
+            .write_all(&authentication_message.as_bytes())
             .map_err(|err| HandshakeError::IoError(err))?;
 
         let mut handshake_result_buffer = Vec::new();

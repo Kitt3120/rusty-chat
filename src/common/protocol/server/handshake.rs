@@ -30,17 +30,17 @@ impl Handshake {
         mut tcp_stream: &TcpStream,
         arguments: HandshakeArguments,
     ) -> Result<Handshake, HandshakeError> {
-        let mut username_request_buffer = Vec::new();
+        let mut authentication_buffer = Vec::new();
 
         tcp_stream
-            .read_to_end(&mut username_request_buffer)
+            .read_to_end(&mut authentication_buffer)
             .map_err(|err| HandshakeError::IoError(err))?;
 
-        let username_request = client::Message::from_bytes(&username_request_buffer)
+        let authentication = client::Message::from_bytes(&authentication_buffer)
             .map_err(|err| HandshakeError::MessageParseError(err))?;
 
-        let username = match username_request {
-            client::Message::RequestUsername(username) => username,
+        let username = match authentication {
+            client::Message::Authenticate(username) => username,
             other => return Err(HandshakeError::UnexpectedMessage(other)),
         };
 

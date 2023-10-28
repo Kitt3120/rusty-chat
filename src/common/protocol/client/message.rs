@@ -2,7 +2,7 @@ use super::super::error::MessageParseError;
 use std::fmt::{Debug, Display};
 
 pub enum Message {
-    RequestUsername(String),
+    Authenticate(String),
     Chat(String),
     End(String),
 }
@@ -10,7 +10,7 @@ pub enum Message {
 impl Clone for Message {
     fn clone(&self) -> Self {
         match self {
-            Message::RequestUsername(username) => Message::RequestUsername(username.clone()),
+            Message::Authenticate(username) => Message::Authenticate(username.clone()),
             Message::Chat(message) => Message::Chat(message.clone()),
             Message::End(reason) => Message::End(reason.clone()),
         }
@@ -20,7 +20,7 @@ impl Clone for Message {
 impl Debug for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Message::RequestUsername(username) => write!(f, "RequestUsername({:?})", username),
+            Message::Authenticate(username) => write!(f, "Authenticate ({:?})", username),
             Message::Chat(message) => write!(f, "Chat({:?})", message),
             Message::End(reason) => write!(f, "End({:?})", reason),
         }
@@ -30,7 +30,7 @@ impl Debug for Message {
 impl Display for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Message::RequestUsername(username) => write!(f, "RequestUsername({})", username),
+            Message::Authenticate(username) => write!(f, "Authenticate ({})", username),
             Message::Chat(message) => write!(f, "Chat({})", message),
             Message::End(reason) => write!(f, "End({})", reason),
         }
@@ -40,7 +40,7 @@ impl Display for Message {
 impl Message {
     pub fn id(&self) -> u8 {
         match self {
-            Message::RequestUsername(_) => 0,
+            Message::Authenticate(_) => 0,
             Message::Chat(_) => 1,
             Message::End(_) => 2,
         }
@@ -48,7 +48,7 @@ impl Message {
 
     pub fn as_bytes(&self) -> Vec<u8> {
         match self {
-            Message::RequestUsername(username) => {
+            Message::Authenticate(username) => {
                 let username_bytes = username.as_bytes();
 
                 let mut bytes = vec![self.id()];
@@ -91,7 +91,7 @@ impl Message {
                     }
                 };
 
-                Ok(Message::RequestUsername(username))
+                Ok(Message::Authenticate(username))
             }
             1 => {
                 if bytes.len() < 2 {
@@ -149,11 +149,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn message_request_username_converts_correctly() {
+    fn message_authenticate_converts_correctly() {
         let username = String::from("Kitt3120");
         let username_comparison_clone = username.clone();
 
-        let message = Message::RequestUsername(username);
+        let message = Message::Authenticate(username);
         let bytes = message.as_bytes();
         let parsed_message = match Message::from_bytes(&bytes) {
             Ok(message) => message,
@@ -161,10 +161,10 @@ mod tests {
         };
 
         assert_eq!(message.id(), parsed_message.id());
-        if let Message::RequestUsername(username) = parsed_message {
+        if let Message::Authenticate(username) = parsed_message {
             assert_eq!(username, username_comparison_clone);
         } else {
-            panic!("Parsed message is not of type MessageKind::RequestUsername");
+            panic!("Parsed message is not of type MessageKind::Authenticate");
         }
     }
 
