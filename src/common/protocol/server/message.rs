@@ -1,4 +1,4 @@
-use super::super::error::MessageParseError;
+use super::super::{error::MessageParseError, Serializable};
 use std::fmt::{Debug, Display};
 
 pub enum Message {
@@ -37,8 +37,8 @@ impl Display for Message {
     }
 }
 
-impl Message {
-    pub fn id(&self) -> u8 {
+impl Serializable for Message {
+    fn id(&self) -> u8 {
         match self {
             Message::Authenticated => 0,
             Message::Chat(_, _) => 1,
@@ -46,7 +46,7 @@ impl Message {
         }
     }
 
-    pub fn as_bytes(&self) -> Vec<u8> {
+    fn as_bytes(&self) -> Vec<u8> {
         match self {
             Message::Authenticated => vec![self.id()],
             Message::Chat(username, message) => {
@@ -69,12 +69,13 @@ impl Message {
         }
     }
 
-    pub fn from_bytes(bytes: &[u8]) -> Result<Message, MessageParseError> {
+    fn from_bytes(bytes: &[u8]) -> Result<Message, MessageParseError> {
         if bytes.is_empty() {
             return Err(MessageParseError::MessageEmpty);
         }
 
-        match bytes[0] {
+        let message_kind = bytes[0];
+        match message_kind {
             0 => Ok(Message::Authenticated),
             1 => {
                 if bytes.len() < 17 {

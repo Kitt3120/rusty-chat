@@ -1,7 +1,9 @@
+use super::super::Serializable;
 use super::{
-    super::{client, server},
+    super::{client, message, server},
     HandshakeError,
 };
+use message::Message;
 use std::{
     io::{Read, Write},
     net::TcpStream,
@@ -30,7 +32,8 @@ impl Handshake {
         mut tcp_stream: &TcpStream,
         arguments: HandshakeArguments,
     ) -> Result<Handshake, HandshakeError> {
-        let authentication_message = client::Message::Authenticate(arguments.username);
+        let authentication_message =
+            Message::Client(client::Message::Authenticate(arguments.username));
 
         tcp_stream
             .write_all(&authentication_message.as_bytes())

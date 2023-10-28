@@ -1,3 +1,4 @@
+use super::super::Serializable;
 use super::{
     super::{client, server},
     HandshakeError,
