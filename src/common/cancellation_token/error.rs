@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum CancellationTokenError {
     AlreadyCancelled,
     PoisonError(String),

@@ -8,6 +8,7 @@ use std::{
     net::TcpStream,
 };
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct HandshakeArguments<'a> {
     taken_usernames: &'a Vec<String>,
 }
@@ -18,6 +19,7 @@ impl<'a> HandshakeArguments<'a> {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Handshake {
     username: String,
 }

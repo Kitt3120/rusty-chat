@@ -5,6 +5,7 @@ use std::{
     vec,
 };
 
+#[derive(Debug)]
 pub struct CancellationTokenSource {
     tokens: Mutex<Vec<Arc<CancellationToken>>>,
     cancelled: Mutex<bool>,

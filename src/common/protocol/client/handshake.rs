@@ -9,6 +9,7 @@ use std::{
     net::TcpStream,
 };
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct HandshakeArguments {
     username: String,
 }
@@ -19,6 +20,7 @@ impl HandshakeArguments {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct Handshake {
     username: String,
 }

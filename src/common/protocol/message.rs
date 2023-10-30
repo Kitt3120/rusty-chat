@@ -1,27 +1,10 @@
 use super::{client, error::MessageParseError, server, Serializable};
 use std::fmt::{Debug, Display};
 
+#[derive(Clone, Debug, PartialEq)]
 pub enum Message {
     Client(client::Message),
     Server(server::Message),
-}
-
-impl Clone for Message {
-    fn clone(&self) -> Self {
-        match self {
-            Message::Client(message) => Message::Client(message.clone()),
-            Message::Server(message) => Message::Server(message.clone()),
-        }
-    }
-}
-
-impl Debug for Message {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Message::Client(message) => write!(f, "Client({:?})", message),
-            Message::Server(message) => write!(f, "Server({:?})", message),
-        }
-    }
 }
 
 impl Display for Message {

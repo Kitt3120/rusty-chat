@@ -1,6 +1,7 @@
 use super::error::CancellationTokenError;
 use std::sync::Mutex;
 
+#[derive(Debug)]
 pub struct CancellationToken {
     cancelled: Mutex<bool>,
 }

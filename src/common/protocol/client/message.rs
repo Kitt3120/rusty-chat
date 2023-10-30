@@ -1,30 +1,11 @@
 use super::super::{error::MessageParseError, Serializable};
 use std::fmt::{Debug, Display};
 
+#[derive(Clone, Debug, PartialEq)]
 pub enum Message {
     Authenticate(String),
     Chat(String),
     End(String),
-}
-
-impl Clone for Message {
-    fn clone(&self) -> Self {
-        match self {
-            Message::Authenticate(username) => Message::Authenticate(username.clone()),
-            Message::Chat(message) => Message::Chat(message.clone()),
-            Message::End(reason) => Message::End(reason.clone()),
-        }
-    }
-}
-
-impl Debug for Message {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Message::Authenticate(username) => write!(f, "Authenticate ({:?})", username),
-            Message::Chat(message) => write!(f, "Chat({:?})", message),
-            Message::End(reason) => write!(f, "End({:?})", reason),
-        }
-    }
 }
 
 impl Display for Message {

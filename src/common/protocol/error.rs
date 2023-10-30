@@ -3,41 +3,12 @@ use std::{
     string::FromUtf8Error,
 };
 
+#[derive(Clone, Debug, PartialEq)]
 pub enum MessageParseError {
     MessageEmpty,
     UnexcpetedEndOfMessage,
     UnknownKind(u8),
     StringParse(String, FromUtf8Error),
-}
-
-impl Clone for MessageParseError {
-    fn clone(&self) -> Self {
-        match self {
-            MessageParseError::MessageEmpty => MessageParseError::MessageEmpty,
-            MessageParseError::UnexcpetedEndOfMessage => MessageParseError::UnexcpetedEndOfMessage,
-            MessageParseError::UnknownKind(kind) => MessageParseError::UnknownKind(kind.clone()),
-            MessageParseError::StringParse(value, err) => {
-                MessageParseError::StringParse(value.clone(), err.clone())
-            }
-        }
-    }
-}
-
-impl Debug for MessageParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            MessageParseError::MessageEmpty => write!(f, "MessageEmpty"),
-            MessageParseError::UnexcpetedEndOfMessage => {
-                write!(f, "UnexcpetedEndOfMessage")
-            }
-            MessageParseError::UnknownKind(kind) => {
-                write!(f, "UnknownKind({:?})", kind)
-            }
-            MessageParseError::StringParse(value, err) => {
-                write!(f, "StringParse({:?}, {:?})", value, err.to_string())
-            }
-        }
-    }
 }
 
 impl Display for MessageParseError {
