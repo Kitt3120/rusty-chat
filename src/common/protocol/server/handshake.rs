@@ -33,10 +33,10 @@ impl Handshake {
 
         tcp_stream
             .read_to_end(&mut authentication_buffer)
-            .map_err(|err| HandshakeError::IoError(err))?;
+            .map_err(HandshakeError::IoError)?;
 
         let message = Message::from_bytes(&authentication_buffer)
-            .map_err(|err| HandshakeError::MessageParseError(err))?;
+            .map_err(HandshakeError::MessageParseError)?;
 
         let authentication = match message {
             Message::Client(message) => match message {
@@ -66,7 +66,7 @@ impl Handshake {
 
         tcp_stream
             .write_all(&message.as_bytes())
-            .map_err(|err| HandshakeError::IoError(err))?;
+            .map_err(HandshakeError::IoError)?;
 
         let handshake = Handshake::new(authentication.username);
         Ok(handshake)

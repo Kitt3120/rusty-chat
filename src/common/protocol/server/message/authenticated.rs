@@ -18,12 +18,10 @@ impl Display for Authenticated {
 
 impl Serializable for Authenticated {
     fn as_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::new();
-
-        bytes
+        Vec::new()
     }
 
-    fn from_bytes(bytes: &[u8]) -> Result<Authenticated, MessageParseError> {
+    fn from_bytes(_bytes: &[u8]) -> Result<Authenticated, MessageParseError> {
         Ok(Authenticated::new())
     }
 }

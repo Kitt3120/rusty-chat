@@ -30,7 +30,7 @@ impl CancellationToken {
     pub fn is_cancelled(&self) -> Result<bool, CancellationTokenError> {
         match self.cancelled.lock() {
             Ok(mutex) => Ok(*mutex),
-            Err(err) => return Err(CancellationTokenError::PoisonError(err.to_string())),
+            Err(err) => Err(CancellationTokenError::PoisonError(err.to_string())),
         }
     }
 }
@@ -46,7 +46,7 @@ mod tests {
 
     #[test]
     fn test_token_initializes_uncancelled() {
-        let mut cancellation_token = CancellationToken::new();
+        let cancellation_token = CancellationToken::new();
 
         assert!(!cancellation_token
             .is_cancelled()
@@ -58,7 +58,7 @@ mod tests {
 
     #[test]
     fn test_token_cancelled_after_cancel() {
-        let mut cancellation_token = CancellationToken::new();
+        let cancellation_token = CancellationToken::new();
 
         cancellation_token
             .cancel()
@@ -74,7 +74,7 @@ mod tests {
 
     #[test]
     fn test_token_cant_be_double_cancelled() {
-        let mut cancellation_token = CancellationToken::new();
+        let cancellation_token = CancellationToken::new();
 
         cancellation_token.cancel().unwrap_or_else(|err| {
             panic!(

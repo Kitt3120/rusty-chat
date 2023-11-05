@@ -36,16 +36,16 @@ impl Handshake {
 
         tcp_stream
             .write_all(&message.as_bytes())
-            .map_err(|err| HandshakeError::IoError(err))?;
+            .map_err(HandshakeError::IoError)?;
 
         let mut handshake_result_buffer = Vec::new();
 
         tcp_stream
             .read_to_end(&mut handshake_result_buffer)
-            .map_err(|err| HandshakeError::IoError(err))?;
+            .map_err(HandshakeError::IoError)?;
 
         let message = Message::from_bytes(&handshake_result_buffer)
-            .map_err(|err| HandshakeError::MessageParseError(err))?;
+            .map_err(HandshakeError::MessageParseError)?;
 
         let authenticated = match message {
             Message::Server(message) => match message {

@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn test_source_initializes_as_uncancelled() {
-        let mut cancellation_token_source = CancellationTokenSource::new();
+        let cancellation_token_source = CancellationTokenSource::new();
 
         assert!(!cancellation_token_source
             .is_cancelled()
@@ -134,7 +134,7 @@ mod tests {
 
     #[test]
     fn test_source_cancelled_after_cancel_empty() {
-        let mut cancellation_token_source: CancellationTokenSource = CancellationTokenSource::new();
+        let cancellation_token_source: CancellationTokenSource = CancellationTokenSource::new();
 
         cancellation_token_source.cancel().unwrap_or_else(|err| {
             panic!(
@@ -181,7 +181,7 @@ mod tests {
 
     #[test]
     fn test_source_cant_be_double_cancelled() {
-        let mut cancellation_token_source = CancellationTokenSource::new();
+        let cancellation_token_source = CancellationTokenSource::new();
 
         cancellation_token_source.cancel().unwrap_or_else(|err| {
             panic!(
