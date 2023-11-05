@@ -1,8 +1,4 @@
-use super::super::Serializable;
-use super::{
-    super::{client, message, server},
-    HandshakeError,
-};
+use super::super::{client, message, server, HandshakeError, Serializable};
 use message::Message;
 use std::{
     io::{Read, Write},
@@ -34,11 +30,12 @@ impl Handshake {
         mut tcp_stream: &TcpStream,
         arguments: HandshakeArguments,
     ) -> Result<Handshake, HandshakeError> {
-        let authentication_message =
-            Message::Client(client::Message::Authenticate(arguments.username));
+        let username = arguments.username.clone(); //TODO: Better handling of this
+        let authenticate = client::message::Authenticate::new(username);
+        let message = Message::Client(client::Message::Authenticate(authenticate));
 
         tcp_stream
-            .write_all(&authentication_message.as_bytes())
+            .write_all(&message.as_bytes())
             .map_err(|err| HandshakeError::IoError(err))?;
 
         let mut handshake_result_buffer = Vec::new();
@@ -47,13 +44,22 @@ impl Handshake {
             .read_to_end(&mut handshake_result_buffer)
             .map_err(|err| HandshakeError::IoError(err))?;
 
-        let message = server::Message::from_bytes(&handshake_result_buffer)
+        let message = Message::from_bytes(&handshake_result_buffer)
             .map_err(|err| HandshakeError::MessageParseError(err))?;
 
-        match message {
-            server::Message::Authenticated => Ok(Handshake::new(arguments.username)),
-            server::Message::End(reason) => Err(HandshakeError::AuthenticationFailed(reason)),
-            other => Err(HandshakeError::UnexpectedMessage(other)),
-        }
+        let authenticated = match message {
+            Message::Server(message) => match message {
+                server::Message::Authenticated(authenticated) => authenticated,
+                server::Message::End(end) => {
+                    return Err(HandshakeError::AuthenticationFailed(end.reason))
+                }
+                _ => return Err(HandshakeError::UnexpectedMessage(Message::Server(message))),
+            },
+            _ => return Err(HandshakeError::UnexpectedMessage(message)),
+        };
+
+        let handshake = Handshake::new(arguments.username);
+
+        Ok(handshake)
     }
 }

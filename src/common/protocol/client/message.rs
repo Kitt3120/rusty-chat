@@ -1,11 +1,29 @@
+pub mod authenticate;
+pub mod chat;
+pub mod end;
+
+pub use authenticate::Authenticate;
+pub use chat::Chat;
+pub use end::End;
+
 use super::super::{error::MessageParseError, Serializable};
 use std::fmt::{Debug, Display};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Message {
-    Authenticate(String),
-    Chat(String),
-    End(String),
+    Authenticate(Authenticate),
+    Chat(Chat),
+    End(End),
+}
+
+impl Message {
+    fn id(&self) -> u8 {
+        match self {
+            Message::Authenticate(_) => 0,
+            Message::Chat(_) => 1,
+            Message::End(_) => 2,
+        }
+    }
 }
 
 impl Display for Message {
@@ -19,33 +37,21 @@ impl Display for Message {
 }
 
 impl Serializable for Message {
-    fn id(&self) -> u8 {
-        match self {
-            Message::Authenticate(_) => 0,
-            Message::Chat(_) => 1,
-            Message::End(_) => 2,
-        }
-    }
-
     fn as_bytes(&self) -> Vec<u8> {
         match self {
-            Message::Authenticate(username) => {
-                let username_bytes = username.as_bytes();
-
+            Message::Authenticate(authenticate) => {
                 let mut bytes = vec![self.id()];
-                bytes.extend_from_slice(username_bytes);
+                bytes.extend(authenticate.as_bytes());
                 bytes
             }
-            Message::Chat(message) => {
-                let message_bytes = message.as_bytes();
-
+            Message::Chat(chat) => {
                 let mut bytes = vec![self.id()];
-                bytes.extend_from_slice(message_bytes);
+                bytes.extend(chat.as_bytes());
                 bytes
             }
-            Message::End(reason) => {
+            Message::End(end) => {
                 let mut bytes = vec![self.id()];
-                bytes.extend_from_slice(reason.as_bytes());
+                bytes.extend(end.as_bytes());
                 bytes
             }
         }
@@ -59,49 +65,16 @@ impl Serializable for Message {
         let message_kind = bytes[0];
         match message_kind {
             0 => {
-                if bytes.len() < 2 {
-                    return Err(MessageParseError::UnexcpetedEndOfMessage);
-                }
-
-                let username = match String::from_utf8(bytes[1..].to_vec()) {
-                    Ok(username) => username,
-                    Err(err) => {
-                        return Err(MessageParseError::StringParse(
-                            String::from("Username"),
-                            err,
-                        ))
-                    }
-                };
-
-                Ok(Message::Authenticate(username))
+                let authenticate = Authenticate::from_bytes(&bytes[1..])?;
+                Ok(Message::Authenticate(authenticate))
             }
             1 => {
-                if bytes.len() < 2 {
-                    return Err(MessageParseError::UnexcpetedEndOfMessage);
-                }
-
-                let message = match String::from_utf8(bytes[1..].to_vec()) {
-                    Ok(message) => message,
-                    Err(err) => {
-                        return Err(MessageParseError::StringParse(String::from("Message"), err))
-                    }
-                };
-
-                Ok(Message::Chat(message))
+                let chat = Chat::from_bytes(&bytes[1..])?;
+                Ok(Message::Chat(chat))
             }
             2 => {
-                if bytes.len() < 2 {
-                    return Err(MessageParseError::UnexcpetedEndOfMessage);
-                }
-
-                let reason = match String::from_utf8(bytes[1..].to_vec()) {
-                    Ok(reason) => reason,
-                    Err(err) => {
-                        return Err(MessageParseError::StringParse(String::from("Reason"), err))
-                    }
-                };
-
-                Ok(Message::End(reason))
+                let end = End::from_bytes(&bytes[1..])?;
+                Ok(Message::End(end))
             }
             kind => Err(MessageParseError::UnknownKind(kind)),
         }
@@ -133,60 +106,69 @@ mod tests {
     #[test]
     fn message_authenticate_converts_correctly() {
         let username = String::from("Kitt3120");
-        let username_comparison_clone = username.clone();
 
-        let message = Message::Authenticate(username);
+        let authenticate = Authenticate::new(username);
+        let authenticate_comparison_clone = authenticate.clone();
+
+        let message = Message::Authenticate(authenticate);
         let bytes = message.as_bytes();
+
         let parsed_message = match Message::from_bytes(&bytes) {
             Ok(message) => message,
             Err(err) => panic!("Failed to parse message: {}", err),
         };
 
         assert_eq!(message.id(), parsed_message.id());
-        if let Message::Authenticate(username) = parsed_message {
-            assert_eq!(username, username_comparison_clone);
+        if let Message::Authenticate(authenticate) = parsed_message {
+            assert_eq!(authenticate, authenticate_comparison_clone);
         } else {
-            panic!("Parsed message is not of type MessageKind::Authenticate");
+            panic!("Parsed message is not of type Message::Authenticate");
         }
     }
 
     #[test]
     fn message_chat_converts_correctly() {
         let message_content = String::from("⚡");
-        let message_content_comparison_clone = message_content.clone();
 
-        let message = Message::Chat(message_content);
+        let chat = Chat::new(message_content);
+        let chat_comparison_clone = chat.clone();
+
+        let message = Message::Chat(chat);
         let bytes = message.as_bytes();
+
         let parsed_message = match Message::from_bytes(&bytes) {
             Ok(message) => message,
             Err(err) => panic!("Failed to parse message: {}", err),
         };
 
         assert_eq!(message.id(), parsed_message.id());
-        if let Message::Chat(message) = parsed_message {
-            assert_eq!(message, message_content_comparison_clone);
+        if let Message::Chat(chat) = parsed_message {
+            assert_eq!(chat, chat_comparison_clone);
         } else {
-            panic!("Parsed message is not of type MessageKind::Chat");
+            panic!("Parsed message is not of type Message::Chat");
         }
     }
 
     #[test]
     fn message_end_converts_correctly() {
         let reason = String::from("❌");
-        let reason_comparison_clone = reason.clone();
 
-        let message = Message::Chat(reason);
+        let end = End::new(reason);
+        let end_comparison_clone = end.clone();
+
+        let message = Message::End(end);
         let bytes = message.as_bytes();
+
         let parsed_message = match Message::from_bytes(&bytes) {
             Ok(message) => message,
             Err(err) => panic!("Failed to parse message: {}", err),
         };
 
         assert_eq!(message.id(), parsed_message.id());
-        if let Message::End(reason) = parsed_message {
-            assert_eq!(reason, reason_comparison_clone);
+        if let Message::End(end) = parsed_message {
+            assert_eq!(end, end_comparison_clone);
         } else {
-            panic!("Parsed message is not of type MessageKind::End");
+            panic!("Parsed message is not of type Message::End");
         }
     }
 }

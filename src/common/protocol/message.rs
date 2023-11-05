@@ -7,6 +7,15 @@ pub enum Message {
     Server(server::Message),
 }
 
+impl Message {
+    fn id(&self) -> u8 {
+        match self {
+            Message::Client(_) => 0,
+            Message::Server(_) => 1,
+        }
+    }
+}
+
 impl Display for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -17,13 +26,6 @@ impl Display for Message {
 }
 
 impl Serializable for Message {
-    fn id(&self) -> u8 {
-        match self {
-            Message::Client(message) => 0,
-            Message::Server(message) => 1,
-        }
-    }
-
     fn as_bytes(&self) -> Vec<u8> {
         let mut bytes = Vec::new();
 
