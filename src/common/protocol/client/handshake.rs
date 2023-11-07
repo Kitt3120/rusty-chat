@@ -47,7 +47,7 @@ impl Handshake {
         let message = Message::from_bytes(&handshake_result_buffer)
             .map_err(HandshakeError::MessageParseError)?;
 
-        let authenticated = match message {
+        match message {
             Message::Server(message) => match message {
                 server::Message::Authenticated(authenticated) => authenticated,
                 server::Message::End(end) => {
