@@ -10,9 +10,15 @@ impl Authenticated {
     }
 }
 
+impl Default for Authenticated {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Display for Authenticated {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "")
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Ok(())
     }
 }
 

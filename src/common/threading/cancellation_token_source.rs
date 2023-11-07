@@ -72,10 +72,21 @@ impl CancellationTokenSource {
     }
 }
 
+impl Default for CancellationTokenSource {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Drop for CancellationTokenSource {
     fn drop(&mut self) {
-        if let Err(CancellationTokenError::PoisonError(reason)) = self.cancel() {
-            panic!("Unable to drop CancellationTokenSource: {}", reason);
+        let cancellation = self.cancel();
+
+        if let Err(CancellationTokenError::PoisonError(reason)) = cancellation {
+            panic!(
+                "Unable to cancel CancellationTokenSource while dropping: {}",
+                reason
+            );
         }
     }
 }

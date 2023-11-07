@@ -3,6 +3,7 @@ use std::{fmt::Display, io::Error};
 use super::super::Message;
 use super::MessageParseError;
 
+#[derive(Debug)]
 pub enum HandshakeError {
     IoError(Error),
     MessageParseError(MessageParseError),

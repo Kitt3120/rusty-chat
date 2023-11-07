@@ -1,5 +1,7 @@
-use super::super::{client, message, server, HandshakeError, Serializable};
-use message::Message;
+use super::super::{
+    client, client::Message as ClientMessage, server::Message as ServerMessage, HandshakeError,
+    Message, Serializable,
+};
 use std::{
     io::{Read, Write},
     net::TcpStream,
@@ -32,7 +34,7 @@ impl Handshake {
     ) -> Result<Handshake, HandshakeError> {
         let username = arguments.username.clone(); //TODO: Better handling of this
         let authenticate = client::message::Authenticate::new(username);
-        let message = Message::Client(client::Message::Authenticate(authenticate));
+        let message = Message::Client(ClientMessage::Authenticate(authenticate));
 
         tcp_stream
             .write_all(&message.as_bytes())
@@ -49,8 +51,8 @@ impl Handshake {
 
         match message {
             Message::Server(message) => match message {
-                server::Message::Authenticated(authenticated) => authenticated,
-                server::Message::End(end) => {
+                ServerMessage::Authenticated(authenticated) => authenticated,
+                ServerMessage::End(end) => {
                     return Err(HandshakeError::AuthenticationFailed(end.reason))
                 }
                 _ => return Err(HandshakeError::UnexpectedMessage(Message::Server(message))),

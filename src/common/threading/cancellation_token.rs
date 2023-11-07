@@ -35,6 +35,12 @@ impl CancellationToken {
     }
 }
 
+impl Default for CancellationToken {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 unsafe impl Send for CancellationToken {}
 unsafe impl Sync for CancellationToken {}
 
@@ -42,7 +48,7 @@ unsafe impl Sync for CancellationToken {}
 mod tests {
 
     use super::super::error::CancellationTokenError;
-    use crate::common::cancellation_token::cancellation_token::CancellationToken;
+    use crate::common::threading::cancellation_token::CancellationToken;
 
     #[test]
     fn test_token_initializes_uncancelled() {
