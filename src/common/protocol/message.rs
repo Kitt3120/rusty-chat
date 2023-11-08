@@ -1,5 +1,6 @@
-use super::{client, error::MessageParseError, server, Serializable};
 use std::fmt::{Debug, Display};
+
+use crate::common::protocol::{client, error::MessageParseError, server, Serializable};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Message {

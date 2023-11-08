@@ -1,5 +1,6 @@
-use super::{MessageParseError, Serializable};
 use std::fmt::Display;
+
+use crate::common::protocol::{error::MessageParseError, Serializable};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Authenticate {

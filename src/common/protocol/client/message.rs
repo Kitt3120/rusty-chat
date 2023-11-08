@@ -1,13 +1,10 @@
-pub mod authenticate;
-pub mod chat;
-pub mod end;
-
-pub use authenticate::Authenticate;
-pub use chat::Chat;
-pub use end::End;
-
-use super::super::{error::MessageParseError, Serializable};
 use std::fmt::{Debug, Display};
+
+use crate::common::protocol::{
+    error::MessageParseError,
+    packet::client::{Authenticate, Chat, End},
+    Serializable,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Message {

@@ -1,12 +1,9 @@
-pub mod authenticated;
-pub mod chat;
-pub mod end;
+use crate::common::protocol::{
+    error::MessageParseError,
+    packet::server::{Authenticated, Chat, End},
+    Serializable,
+};
 
-pub use authenticated::Authenticated;
-pub use chat::Chat;
-pub use end::End;
-
-use super::super::{error::MessageParseError, Serializable};
 use std::fmt::{Debug, Display};
 
 #[derive(Clone, Debug, PartialEq)]

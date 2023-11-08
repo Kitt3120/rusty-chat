@@ -1,10 +1,10 @@
-use super::super::{
-    client, client::Message as ClientMessage, server::Message as ServerMessage, HandshakeError,
-    Message, Serializable,
-};
 use std::{
     io::{Read, Write},
     net::TcpStream,
+};
+
+use crate::common::protocol::{
+    client, error::HandshakeError, packet::client::Authenticate, server, Message, Serializable,
 };
 
 #[derive(Clone, Debug, PartialEq)]
@@ -33,8 +33,8 @@ impl Handshake {
         arguments: HandshakeArguments,
     ) -> Result<Handshake, HandshakeError> {
         let username = arguments.username.clone(); //TODO: Better handling of this
-        let authenticate = client::message::Authenticate::new(username);
-        let message = Message::Client(ClientMessage::Authenticate(authenticate));
+        let authenticate_packet = Authenticate::new(username);
+        let message = Message::Client(client::Message::Authenticate(authenticate_packet));
 
         tcp_stream
             .write_all(&message.as_bytes())
@@ -51,8 +51,8 @@ impl Handshake {
 
         match message {
             Message::Server(message) => match message {
-                ServerMessage::Authenticated(authenticated) => authenticated,
-                ServerMessage::End(end) => {
+                server::Message::Authenticated(authenticated) => authenticated,
+                server::Message::End(end) => {
                     return Err(HandshakeError::AuthenticationFailed(end.reason))
                 }
                 _ => return Err(HandshakeError::UnexpectedMessage(Message::Server(message))),

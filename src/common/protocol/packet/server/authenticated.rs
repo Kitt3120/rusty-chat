@@ -1,4 +1,4 @@
-use super::{MessageParseError, Serializable};
+use crate::common::protocol::{error::MessageParseError, Serializable};
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq)]

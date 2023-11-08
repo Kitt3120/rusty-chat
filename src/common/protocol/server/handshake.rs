@@ -1,10 +1,13 @@
-use super::super::{
-    client::Message as ClientMessage, server, server::Message as ServerMessage, HandshakeError,
-    Message, Serializable,
-};
 use std::{
     io::{Read, Write},
     net::TcpStream,
+};
+
+use crate::common::protocol::{
+    client,
+    error::HandshakeError,
+    packet::server::{Authenticated, End},
+    server, Message, Serializable,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -41,37 +44,40 @@ impl Handshake {
         let message = Message::from_bytes(&authentication_buffer)
             .map_err(HandshakeError::MessageParseError)?;
 
-        let authentication = match message {
+        let authentication_packet = match message {
             Message::Client(message) => match message {
-                ClientMessage::Authenticate(authentication) => authentication,
+                client::Message::Authenticate(authentication) => authentication,
                 _ => return Err(HandshakeError::UnexpectedMessage(Message::Client(message))),
             },
             _ => return Err(HandshakeError::UnexpectedMessage(message)),
         };
 
-        if arguments.taken_usernames.contains(&authentication.username) {
-            let end = server::message::End::new(String::from("Username already taken"));
-            let end_message = Message::Server(ServerMessage::End(end));
+        if arguments
+            .taken_usernames
+            .contains(&authentication_packet.username)
+        {
+            let end_packet = End::new(String::from("Username already taken"));
+            let message = Message::Server(server::Message::End(end_packet));
 
-            match tcp_stream.write_all(&end_message.as_bytes()) {
+            match tcp_stream.write_all(&message.as_bytes()) {
                 Ok(_) => {
                     return Err(HandshakeError::AuthenticationFailed(format!(
                         "Username already taken: {}",
-                        &authentication.username
+                        &authentication_packet.username
                     )))
                 }
                 Err(err) => return Err(HandshakeError::IoError(err)),
             }
         }
 
-        let authenticated = server::message::Authenticated::new();
-        let message = Message::Server(ServerMessage::Authenticated(authenticated));
+        let authenticated_packet = Authenticated::new();
+        let message = Message::Server(server::Message::Authenticated(authenticated_packet));
 
         tcp_stream
             .write_all(&message.as_bytes())
             .map_err(HandshakeError::IoError)?;
 
-        let handshake = Handshake::new(authentication.username);
+        let handshake = Handshake::new(authentication_packet.username);
         Ok(handshake)
     }
 }

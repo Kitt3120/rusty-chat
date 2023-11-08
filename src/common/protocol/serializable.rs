@@ -1,4 +1,4 @@
-use super::MessageParseError;
+use crate::common::protocol::error::MessageParseError;
 
 pub trait Serializable: Sized {
     fn as_bytes(&self) -> Vec<u8>;
