@@ -1,6 +1,8 @@
 use std::fmt::Display;
 
-use crate::common::protocol::{error::MessageParseError, Serializable};
+use crate::common::protocol::{
+    client, error::MessageParseError, packet::Packet, Message, Serializable,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Authenticate {
@@ -44,5 +46,11 @@ impl Serializable for Authenticate {
         };
 
         Ok(Authenticate::new(username))
+    }
+}
+
+impl Packet for Authenticate {
+    fn to_message(self) -> Message {
+        Message::Client(client::Message::Authenticate(self))
     }
 }

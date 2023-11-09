@@ -6,7 +6,10 @@ use std::{
 use crate::common::protocol::{
     client,
     error::HandshakeError,
-    packet::server::{Authenticated, End},
+    packet::{
+        server::{Authenticated, End},
+        Packet,
+    },
     server, Message, Serializable,
 };
 
@@ -57,7 +60,7 @@ impl Handshake {
             .contains(&authentication_packet.username)
         {
             let end_packet = End::new(String::from("Username already taken"));
-            let message = Message::Server(server::Message::End(end_packet));
+            let message = end_packet.to_message();
 
             match tcp_stream.write_all(&message.as_bytes()) {
                 Ok(_) => {
@@ -71,7 +74,7 @@ impl Handshake {
         }
 
         let authenticated_packet = Authenticated::new();
-        let message = Message::Server(server::Message::Authenticated(authenticated_packet));
+        let message = authenticated_packet.to_message();
 
         tcp_stream
             .write_all(&message.as_bytes())

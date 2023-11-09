@@ -4,7 +4,10 @@ use std::{
 };
 
 use crate::common::protocol::{
-    client, error::HandshakeError, packet::client::Authenticate, server, Message, Serializable,
+    client,
+    error::HandshakeError,
+    packet::{client::Authenticate, Packet},
+    server, Message, Serializable,
 };
 
 #[derive(Clone, Debug, PartialEq)]
@@ -34,7 +37,7 @@ impl Handshake {
     ) -> Result<Handshake, HandshakeError> {
         let username = arguments.username.clone(); //TODO: Better handling of this
         let authenticate_packet = Authenticate::new(username);
-        let message = Message::Client(client::Message::Authenticate(authenticate_packet));
+        let message = authenticate_packet.to_message();
 
         tcp_stream
             .write_all(&message.as_bytes())

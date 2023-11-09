@@ -1,4 +1,6 @@
-use crate::common::protocol::{error::MessageParseError, Serializable};
+use crate::common::protocol::{
+    error::MessageParseError, packet::Packet, server, Message, Serializable,
+};
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -29,5 +31,11 @@ impl Serializable for Authenticated {
 
     fn from_bytes(_bytes: &[u8]) -> Result<Authenticated, MessageParseError> {
         Ok(Authenticated::new())
+    }
+}
+
+impl Packet for Authenticated {
+    fn to_message(self) -> Message {
+        Message::Server(server::Message::Authenticated(self))
     }
 }

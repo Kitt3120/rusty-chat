@@ -1,4 +1,6 @@
-use crate::common::protocol::{error::MessageParseError, Serializable};
+use crate::common::protocol::{
+    client, error::MessageParseError, packet::Packet, Message, Serializable,
+};
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -38,5 +40,11 @@ impl Serializable for End {
         };
 
         Ok(End::new(reason))
+    }
+}
+
+impl Packet for End {
+    fn to_message(self) -> Message {
+        Message::Client(client::Message::End(self))
     }
 }
