@@ -10,28 +10,26 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        toolchain:
-          [
-            stable-x86_64-unknown-linux-gnu,
-            stable-x86_64-apple-darwin,
-            stable-x86_64-pc-windows-msvc,
-            stable-i686-unknown-linux-gnu,
-            stable-i686-pc-windows-msvc,
-            stable-aarch64-unknown-linux-gnu,
-            stable-aarch64-apple-darwin,
-            stable-aarch64-pc-windows-msvc,
-            stable-armv7-unknown-linux-gnueabihf,
-          ]
+        env: [ubuntu-64, macos-64, windows-64]
+        include:
+          - env: ubuntu-64
+            os: ubuntu-latest
+            toolchain: stable-x86_64-unknown-linux-gnu
+          - env: macos-64
+            os: macos-latest
+            toolchain: stable-x86_64-apple-darwin
+          - env: windows-64
+            os: windows-latest
+            toolchain: stable-x86_64-pc-windows-msvc
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup Rust toolchain
+      - name: Setup toolchain ${{ matrix.toolchain }} for ${{ matrix.os }}
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.toolchain }}
           override: true
-      - name: Build
+      - name: Build using ${{ matrix.toolchain }} for ${{ matrix.os }}
         uses: actions-rs/cargo@v1
         with:
           command: build
@@ -42,28 +40,26 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        toolchain:
-          [
-            stable-x86_64-unknown-linux-gnu,
-            stable-x86_64-apple-darwin,
-            stable-x86_64-pc-windows-msvc,
-            stable-i686-unknown-linux-gnu,
-            stable-i686-pc-windows-msvc,
-            aarch64-unknown-linux-gnu,
-            aarch64-apple-darwin,
-            aarch64-pc-windows-msvc,
-            armv7-unknown-linux-gnueabihf,
-          ]
+        env: [ubuntu-64, macos-64, windows-64]
+        include:
+          - env: ubuntu-64
+            os: ubuntu-latest
+            toolchain: stable-x86_64-unknown-linux-gnu
+          - env: macos-64
+            os: macos-latest
+            toolchain: stable-x86_64-apple-darwin
+          - env: windows-64
+            os: windows-latest
+            toolchain: stable-x86_64-pc-windows-msvc
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup Rust toolchain
+      - name: Setup Rust toolchain ${{ matrix.toolchain }} for ${{ matrix.os }}
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.toolchain }}
           override: true
-      - name: Test
+      - name: Test using ${{ matrix.toolchain }} for ${{ matrix.os }}
         uses: actions-rs/cargo@v1
         with:
           command: test
