@@ -1,5 +1,5 @@
-pub mod handshake_error;
-pub mod message_parse_error;
+pub mod handshake;
+pub mod message_parse;
 
-pub use handshake_error::HandshakeError;
-pub use message_parse_error::MessageParseError;
+pub use handshake::HandshakeError;
+pub use message_parse::MessageParseError;

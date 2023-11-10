@@ -1,13 +1,10 @@
-use std::{
-    io::{Read, Write},
-    net::TcpStream,
-};
-
-use crate::common::protocol::{
-    error::HandshakeError,
-    message::{server, Message},
-    packet::{client::Authenticate, server::Authenticated, Packet},
-    serializable::Serializable,
+use crate::common::{
+    message_stream::MessageStream,
+    protocol::{
+        error::HandshakeError,
+        message::{server, Message},
+        packet::{client::Authenticate, server::Authenticated, Packet},
+    },
 };
 
 #[derive(Clone, Debug, PartialEq)]
@@ -32,11 +29,11 @@ impl Handshake {
     }
 
     pub fn perform(
-        tcp_stream: &mut TcpStream,
+        message_stream: &mut MessageStream,
         arguments: HandshakeArguments,
     ) -> Result<Handshake, HandshakeError> {
-        send_authentication(tcp_stream, arguments.username.clone())?;
-        let _authenticated = receive_authentication_result(tcp_stream)?;
+        send_authentication(message_stream, arguments.username.clone())?;
+        let _authenticated = receive_authentication_result(message_stream)?;
         // Currently, the server's authenticated packet does not contain any data, so we don't need anything from it.
         // However, it's already implemented here so we don't have to adapt here again when finally adding data to the packet.
 
@@ -45,28 +42,26 @@ impl Handshake {
     }
 }
 
-fn send_authentication(tcp_stream: &mut TcpStream, username: String) -> Result<(), HandshakeError> {
+fn send_authentication(
+    message_stream: &mut MessageStream,
+    username: String,
+) -> Result<(), HandshakeError> {
     let authenticate_packet = Authenticate::new(username);
     let message = authenticate_packet.to_message();
 
-    tcp_stream
-        .write_all(&message.as_bytes())
-        .map_err(HandshakeError::IoError)?;
+    message_stream
+        .send_message(&message)
+        .map_err(HandshakeError::MessageStreamError)?;
 
     Ok(())
 }
 
 fn receive_authentication_result(
-    tcp_stream: &mut TcpStream,
+    message_stream: &mut MessageStream,
 ) -> Result<Authenticated, HandshakeError> {
-    let mut handshake_result_buffer = Vec::new();
-
-    tcp_stream
-        .read_to_end(&mut handshake_result_buffer)
-        .map_err(HandshakeError::IoError)?;
-
-    let message =
-        Message::from_bytes(&handshake_result_buffer).map_err(HandshakeError::MessageParseError)?;
+    let message = message_stream
+        .read_message()
+        .map_err(HandshakeError::MessageStreamError)?;
 
     let authenticated_packet = match message {
         Message::Server(message) => match message {

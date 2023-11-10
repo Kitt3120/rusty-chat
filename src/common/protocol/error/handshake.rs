@@ -1,10 +1,9 @@
-use crate::common::protocol::{error::MessageParseError, message::Message};
-use std::{fmt::Display, io::Error};
+use crate::common::{message_stream::error::MessageStreamError, protocol::message::Message};
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub enum HandshakeError {
-    IoError(Error),
-    MessageParseError(MessageParseError),
+    MessageStreamError(MessageStreamError),
     UnexpectedMessage(Message),
     AuthenticationFailed(String),
 }
@@ -12,9 +11,8 @@ pub enum HandshakeError {
 impl Display for HandshakeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            HandshakeError::IoError(err) => write!(f, "IoError while reading message: {}", err),
-            HandshakeError::MessageParseError(err) => {
-                write!(f, "Unable to parse message: {}", err)
+            HandshakeError::MessageStreamError(err) => {
+                write!(f, "Error while streaming message: {}", err)
             }
             HandshakeError::UnexpectedMessage(message) => {
                 write!(f, "Unexpected message: {}", message)
