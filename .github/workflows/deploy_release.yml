@@ -1,10 +1,10 @@
-name: Deploy
+name: Deploy release
 on:
   push:
     branches: [main]
 jobs:
   crates_io:
-    name: Deploy crates.io
+    name: Deploy crates.io (release)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,7 +24,7 @@ jobs:
         with:
           command: publish
   github_release:
-    name: Deploy GitHub
+    name: Deploy GitHub (release)
     needs: crates_io
     permissions:
       contents: write
