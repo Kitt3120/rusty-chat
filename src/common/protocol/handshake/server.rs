@@ -10,7 +10,7 @@ use crate::common::protocol::{
         server::{Authenticated, End},
         Packet,
     },
-    server, Message, Serializable,
+    Message, Serializable,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -84,3 +84,5 @@ impl Handshake {
         Ok(handshake)
     }
 }
+
+//TODO: Test

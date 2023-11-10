@@ -4,7 +4,6 @@ use std::{
 };
 
 use crate::common::protocol::{
-    client,
     error::HandshakeError,
     packet::{client::Authenticate, Packet},
     server, Message, Serializable,
@@ -68,3 +67,5 @@ impl Handshake {
         Ok(handshake)
     }
 }
+
+//TODO: Test
