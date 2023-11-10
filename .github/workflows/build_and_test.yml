@@ -1,4 +1,4 @@
-name: Build and test Linux, Mac and Windows versions using their respective stable toolchains
+name: Build and test
 on:
   push:
     branches: [main]
