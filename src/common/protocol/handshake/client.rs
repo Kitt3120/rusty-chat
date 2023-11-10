@@ -6,7 +6,7 @@ use std::{
 use crate::common::protocol::{
     error::HandshakeError,
     message::{server, Message},
-    packet::{client::Authenticate, Packet},
+    packet::{client::Authenticate, server::Authenticated, Packet},
     Serializable,
 };
 
@@ -16,7 +16,7 @@ pub struct HandshakeArguments {
 }
 
 impl HandshakeArguments {
-    fn new(username: String) -> HandshakeArguments {
+    pub fn new(username: String) -> HandshakeArguments {
         HandshakeArguments { username }
     }
 }
@@ -32,41 +32,54 @@ impl Handshake {
     }
 
     pub fn perform(
-        mut tcp_stream: &TcpStream,
+        tcp_stream: &mut TcpStream,
         arguments: HandshakeArguments,
     ) -> Result<Handshake, HandshakeError> {
-        let username = arguments.username.clone(); //TODO: Better handling of this
-        let authenticate_packet = Authenticate::new(username);
-        let message = authenticate_packet.to_message();
-
-        tcp_stream
-            .write_all(&message.as_bytes())
-            .map_err(HandshakeError::IoError)?;
-
-        let mut handshake_result_buffer = Vec::new();
-
-        tcp_stream
-            .read_to_end(&mut handshake_result_buffer)
-            .map_err(HandshakeError::IoError)?;
-
-        let message = Message::from_bytes(&handshake_result_buffer)
-            .map_err(HandshakeError::MessageParseError)?;
-
-        match message {
-            Message::Server(message) => match message {
-                server::Message::Authenticated(authenticated) => authenticated,
-                server::Message::End(end) => {
-                    return Err(HandshakeError::AuthenticationFailed(end.reason))
-                }
-                _ => return Err(HandshakeError::UnexpectedMessage(Message::Server(message))),
-            },
-            _ => return Err(HandshakeError::UnexpectedMessage(message)),
-        };
+        send_authentication(tcp_stream, arguments.username.clone())?;
+        let _authenticated = receive_authentication_result(tcp_stream)?;
+        // Currently, the server's authenticated packet does not contain any data, so we don't need anything from it.
+        // However, it's already implemented here so we don't have to adapt here again when finally adding data to the packet.
 
         let handshake = Handshake::new(arguments.username);
-
         Ok(handshake)
     }
+}
+
+fn send_authentication(tcp_stream: &mut TcpStream, username: String) -> Result<(), HandshakeError> {
+    let authenticate_packet = Authenticate::new(username);
+    let message = authenticate_packet.to_message();
+
+    tcp_stream
+        .write_all(&message.as_bytes())
+        .map_err(HandshakeError::IoError)?;
+
+    Ok(())
+}
+
+fn receive_authentication_result(
+    tcp_stream: &mut TcpStream,
+) -> Result<Authenticated, HandshakeError> {
+    let mut handshake_result_buffer = Vec::new();
+
+    tcp_stream
+        .read_to_end(&mut handshake_result_buffer)
+        .map_err(HandshakeError::IoError)?;
+
+    let message =
+        Message::from_bytes(&handshake_result_buffer).map_err(HandshakeError::MessageParseError)?;
+
+    let authenticated_packet = match message {
+        Message::Server(message) => match message {
+            server::Message::Authenticated(authenticated) => authenticated,
+            server::Message::End(end) => {
+                return Err(HandshakeError::AuthenticationFailed(end.reason))
+            }
+            _ => return Err(HandshakeError::UnexpectedMessage(Message::Server(message))),
+        },
+        _ => return Err(HandshakeError::UnexpectedMessage(message)),
+    };
+
+    Ok(authenticated_packet)
 }
 
 //TODO: Test

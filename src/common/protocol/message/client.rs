@@ -35,23 +35,13 @@ impl Display for Message {
 
 impl Serializable for Message {
     fn as_bytes(&self) -> Vec<u8> {
-        match self {
-            Message::Authenticate(authenticate) => {
-                let mut bytes = vec![self.id()];
-                bytes.extend(authenticate.as_bytes());
-                bytes
-            }
-            Message::Chat(chat) => {
-                let mut bytes = vec![self.id()];
-                bytes.extend(chat.as_bytes());
-                bytes
-            }
-            Message::End(end) => {
-                let mut bytes = vec![self.id()];
-                bytes.extend(end.as_bytes());
-                bytes
-            }
-        }
+        let mut bytes = vec![self.id()];
+        bytes.extend(match self {
+            Message::Authenticate(username) => username.as_bytes(),
+            Message::Chat(message) => message.as_bytes(),
+            Message::End(reason) => reason.as_bytes(),
+        });
+        bytes
     }
 
     fn from_bytes(bytes: &[u8]) -> Result<Message, MessageParseError> {
