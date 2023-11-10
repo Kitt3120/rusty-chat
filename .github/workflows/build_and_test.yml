@@ -1,4 +1,4 @@
-name: Build and test Linux, Mac and Windows versions for x86_64, x86, aarch64 and armv7 architectures on Ubuntu, MacOS and Windows each
+name: Build and test Linux, Mac and Windows versions using their respective stable toolchains
 on:
   push:
     branches: [main]
