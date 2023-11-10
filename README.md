@@ -1,6 +1,14 @@
 # rusty-chat
 
-A simple network-wide chat application, consisting of a server and a client side implementation.
+A simple network-wide chat application, consisting of a server and a client side implementation.s
+
+# Status
+
+Deployment status: [![Deploy](https://github.com/Kitt3120/rusty-chat/actions/workflows/deploy.yml/badge.svg)](https://github.com/Kitt3120/rusty-chat/actions/workflows/deploy.yml)
+
+A board can be viewed here: https://github.com/users/Kitt3120/projects/2
+
+Otherwise, issues can be viewer here: https://github.com/Kitt3120/rusty-chat/issues
 
 # Why?
 
