@@ -16,14 +16,14 @@ jobs:
           override: true
       - name: Read branch version
         id: branch_version
-        run: echo "::set-output name=version::$(cargo read-manifest | jq -r .version)"
+        run: echo "version=$(cargo read-manifest | jq -r .version)" >> $GITHUB_OUTPUT
       - name: Checkout main
         uses: actions/checkout@v2
         with:
           ref: main
       - name: Read main version
         id: main_version
-        run: echo "::set-output name=version::$(cargo read-manifest | jq -r .version)"
+        run: echo "version=$(cargo read-manifest | jq -r .version)" >> $GITHUB_OUTPUT
       - name: Check version bump
         run: |
           if [ "${{ steps.branch_version.outputs.version }}" == "${{ steps.main_version.outputs.version }}" ]; then
