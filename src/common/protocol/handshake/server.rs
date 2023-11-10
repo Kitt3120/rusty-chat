@@ -5,12 +5,12 @@ use std::{
 
 use crate::common::protocol::{
     error::HandshakeError,
-    message::client,
+    message::{client, Message},
     packet::{
         server::{Authenticated, End},
         Packet,
     },
-    Message, Serializable,
+    Serializable,
 };
 
 #[derive(Debug, Clone, PartialEq)]

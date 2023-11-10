@@ -1,7 +1,5 @@
+use crate::common::protocol::{error::MessageParseError, message::Message};
 use std::{fmt::Display, io::Error};
-
-use super::super::Message;
-use super::MessageParseError;
 
 #[derive(Debug)]
 pub enum HandshakeError {

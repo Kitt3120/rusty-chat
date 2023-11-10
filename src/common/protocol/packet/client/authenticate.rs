@@ -1,7 +1,10 @@
 use std::fmt::Display;
 
 use crate::common::protocol::{
-    error::MessageParseError, message::client, packet::Packet, Message, Serializable,
+    error::MessageParseError,
+    message::{client, Message},
+    packet::Packet,
+    Serializable,
 };
 
 #[derive(Clone, Debug, PartialEq)]
