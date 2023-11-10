@@ -2,6 +2,9 @@
 name = "rusty_chat"
 version = "0.1.0"
 edition = "2021"
+description = "A client-server chat application on TCP written in Rust"
+license = "MIT"
+repository = "https://github.com/Kitt3120/rusty-chat"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
