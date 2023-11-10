@@ -5,8 +5,9 @@ use std::{
 
 use crate::common::protocol::{
     error::HandshakeError,
+    message::server,
     packet::{client::Authenticate, Packet},
-    server, Message, Serializable,
+    Message, Serializable,
 };
 
 #[derive(Clone, Debug, PartialEq)]

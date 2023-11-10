@@ -4,8 +4,8 @@ use std::{
 };
 
 use crate::common::protocol::{
-    client,
     error::HandshakeError,
+    message::client,
     packet::{
         server::{Authenticated, End},
         Packet,

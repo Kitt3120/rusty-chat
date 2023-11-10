@@ -1,5 +1,5 @@
 use crate::common::protocol::{
-    client, error::MessageParseError, packet::Packet, Message, Serializable,
+    error::MessageParseError, message::client, packet::Packet, Message, Serializable,
 };
 use std::fmt::Display;
 
