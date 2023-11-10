@@ -1,7 +1,7 @@
 use crate::common::protocol::{
     error::MessageParseError,
     packet::server::{Authenticated, Chat, End},
-    Serializable,
+    serializable::Serializable,
 };
 
 use std::fmt::{Debug, Display};

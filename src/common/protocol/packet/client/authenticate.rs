@@ -4,7 +4,7 @@ use crate::common::protocol::{
     error::MessageParseError,
     message::{client, Message},
     packet::Packet,
-    Serializable,
+    serializable::Serializable,
 };
 
 #[derive(Clone, Debug, PartialEq)]

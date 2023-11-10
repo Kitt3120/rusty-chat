@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display};
 use crate::common::protocol::{
     error::MessageParseError,
     packet::client::{Authenticate, Chat, End},
-    Serializable,
+    serializable::Serializable,
 };
 
 #[derive(Clone, Debug, PartialEq)]

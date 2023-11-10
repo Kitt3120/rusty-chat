@@ -7,7 +7,7 @@ use crate::common::protocol::{
     error::HandshakeError,
     message::{server, Message},
     packet::{client::Authenticate, server::Authenticated, Packet},
-    Serializable,
+    serializable::Serializable,
 };
 
 #[derive(Clone, Debug, PartialEq)]

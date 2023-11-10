@@ -2,7 +2,7 @@ use crate::common::protocol::{
     error::MessageParseError,
     message::{client, Message},
     packet::Packet,
-    Serializable,
+    serializable::Serializable,
 };
 use std::fmt::Display;
 

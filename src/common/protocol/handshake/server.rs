@@ -11,7 +11,7 @@ use crate::common::protocol::{
         server::{Authenticated, End},
         Packet,
     },
-    Serializable,
+    serializable::Serializable,
 };
 
 #[derive(Debug, Clone, PartialEq)]

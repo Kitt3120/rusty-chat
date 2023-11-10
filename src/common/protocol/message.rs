@@ -3,7 +3,7 @@ pub mod server;
 
 use std::fmt::{Debug, Display};
 
-use crate::common::protocol::{error::MessageParseError, Serializable};
+use crate::common::protocol::{error::MessageParseError, serializable::Serializable};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Message {
