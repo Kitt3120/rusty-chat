@@ -11,20 +11,20 @@ use crate::common::{
     },
 };
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug)]
 pub struct HandshakeArguments<'a> {
-    taken_usernames: &'a [String],
+    pub taken_usernames: Vec<&'a str>,
 }
 
 impl<'a> HandshakeArguments<'a> {
-    pub fn new(taken_usernames: &'a [String]) -> HandshakeArguments<'a> {
+    pub fn new(taken_usernames: Vec<&'a str>) -> HandshakeArguments<'a> {
         HandshakeArguments { taken_usernames }
     }
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Handshake {
-    username: String,
+    pub username: String,
 }
 
 impl Handshake {
@@ -37,14 +37,21 @@ impl Handshake {
         arguments: HandshakeArguments,
     ) -> Result<Handshake, HandshakeError> {
         let authenticate_packet = receive_authentication(message_stream)?;
-        send_authentication_result(
-            message_stream,
-            arguments.taken_usernames,
-            authenticate_packet.username.clone(),
-        )?;
 
-        let handshake = Handshake::new(authenticate_packet.username);
-        Ok(handshake)
+        let chosen_username = authenticate_packet.username;
+        let username_taken = arguments
+            .taken_usernames
+            .contains(&chosen_username.as_str());
+
+        send_authentication_result(message_stream, &chosen_username, username_taken)?;
+
+        match username_taken {
+            true => Err(HandshakeError::AuthenticationFailed(format!(
+                "Username {} already taken",
+                chosen_username
+            ))),
+            false => Ok(Handshake::new(chosen_username)),
+        }
     }
 }
 
@@ -68,13 +75,12 @@ fn receive_authentication(
 
 fn send_authentication_result(
     message_stream: &mut MessageStream,
-    taken_usernames: &[String],
-    username: String,
+    username: &str,
+    username_taken: bool,
 ) -> Result<(), HandshakeError> {
-    let username_taken = taken_usernames.contains(&username);
     let message = match username_taken {
         true => {
-            let end_packet = End::new(String::from("Username already taken"));
+            let end_packet = End::new(format!("Username {} already taken", username));
             end_packet.to_message()
         }
         false => {

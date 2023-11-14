@@ -9,7 +9,7 @@ use crate::common::{
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct HandshakeArguments {
-    username: String,
+    pub username: String,
 }
 
 impl HandshakeArguments {
@@ -20,7 +20,7 @@ impl HandshakeArguments {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Handshake {
-    username: String,
+    pub username: String,
 }
 
 impl Handshake {
