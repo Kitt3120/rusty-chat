@@ -1,4 +1,4 @@
-# rusty-chat
+# rusty_chat
 
 A simple network-wide chat application, consisting of a server and a client side implementation.s
 
