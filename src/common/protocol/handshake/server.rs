@@ -38,19 +38,17 @@ impl Handshake {
     ) -> Result<Handshake, HandshakeError> {
         let authenticate_packet = receive_authentication(message_stream)?;
 
-        let chosen_username = authenticate_packet.username;
-        let username_taken = arguments
-            .taken_usernames
-            .contains(&chosen_username.as_str());
+        let username = authenticate_packet.username;
+        let username_taken = arguments.taken_usernames.contains(&username.as_str());
 
-        send_authentication_result(message_stream, &chosen_username, username_taken)?;
+        send_authentication_result(message_stream, &username, username_taken)?;
 
         match username_taken {
             true => Err(HandshakeError::AuthenticationFailed(format!(
                 "Username {} already taken",
-                chosen_username
+                username
             ))),
-            false => Ok(Handshake::new(chosen_username)),
+            false => Ok(Handshake::new(username)),
         }
     }
 }
@@ -63,10 +61,7 @@ fn receive_authentication(
         .map_err(HandshakeError::MessageStreamError)?;
 
     let authenticate_packet = match message {
-        Message::Client(message) => match message {
-            client::Message::Authenticate(authentication) => authentication,
-            _ => return Err(HandshakeError::UnexpectedMessage(Message::Client(message))),
-        },
+        Message::Client(client::Message::Authenticate(authentication)) => authentication,
         _ => return Err(HandshakeError::UnexpectedMessage(message)),
     };
 

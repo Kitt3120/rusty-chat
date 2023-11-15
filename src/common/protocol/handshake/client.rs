@@ -35,7 +35,7 @@ impl Handshake {
         send_authentication(message_stream, arguments.username.clone())?;
         let _authenticated = receive_authentication_result(message_stream)?;
         // Currently, the server's authenticated packet does not contain any data, so we don't need anything from it.
-        // However, it's already implemented here so we don't have to adapt here again when finally adding data to the packet.
+        // However, it's already implemented here so we have to adapt less here again when finally adding data to the packet that we have to use.
 
         let handshake = Handshake::new(arguments.username);
         Ok(handshake)

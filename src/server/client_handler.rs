@@ -1,6 +1,6 @@
 use crate::{
     common::{
-        message_stream::{error::MessageStreamError, MessageStream},
+        message_stream::MessageStream,
         protocol::{
             error::HandshakeError::{self, AuthenticationFailed, UnexpectedMessage},
             handshake::server::{Handshake, HandshakeArguments},
@@ -58,6 +58,10 @@ impl ClientHandler {
         self.cancellation_token_source.cancel()
     }
 
+    pub fn is_cancelled(&self) -> Result<bool, CancellationTokenError> {
+        self.cancellation_token_source.is_cancelled()
+    }
+
     pub fn join(self) -> Result<Result<(), String>, Box<dyn Any + Send>> {
         self.client_acceptance_thread.join()
     }
@@ -69,7 +73,7 @@ impl ClientHandler {
                 CancellationTokenError::AlreadyCancelled => (), // We use these match statements to ignore this error and being exhaustive, so that we have to adapt the code if we change the error type
                 CancellationTokenError::PoisonError(_) => {
                     return Err(format!(
-                        "Error while cancelling enclosed CancellationTokenSource: {}",
+                        "Error while cancelling the enclosed CancellationTokenSource: {}",
                         err
                     ))
                 }
@@ -79,11 +83,13 @@ impl ClientHandler {
         match self.join() {
             Ok(join_result) => match join_result {
                 Ok(_) => (),
-                Err(err) => return Err(format!("Error while joining enclosed thread: {}", err)),
+                Err(err) => {
+                    return Err(format!("Error while joining the enclosed thread: {}", err))
+                }
             },
             Err(_) => {
                 return Err(String::from(
-                    "Unable to join enclosed thread. The thread panicked.",
+                    "Unable to join the enclosed thread. The thread panicked.",
                 ))
             }
         };
@@ -99,17 +105,26 @@ fn handle_clients(
     cancellation_token: Arc<CancellationToken>,
 ) -> Result<(), String> {
     // We set the TcpListener to non-blocking, so that we can check the cancellation token periodically instead of blocking the thread
-    tcp_listener
-        .set_nonblocking(true)
-        .map_err(|err| format!("Error while setting TcpListener to non-blocking: {}", err))?;
+    tcp_listener.set_nonblocking(true).map_err(|err| {
+        format!(
+            "Error while setting the TcpListener to non-blocking: {}",
+            err
+        )
+    })?;
 
     loop {
         let cancelled = match cancellation_token.is_cancelled() {
             Ok(cancelled) => cancelled,
-            Err(err) => return Err(format!("Error while checking CancellationToken: {}", err)),
+            Err(err) => {
+                return Err(format!(
+                    "Error while checking the CancellationToken: {}",
+                    err
+                ))
+            }
         };
 
         if cancelled {
+            println!("Cancel has been requested, shutting down the ClientHandler");
             break;
         }
 
@@ -159,7 +174,7 @@ fn handle_clients(
             Ok(vector) => vector,
             Err(err) => {
                 return Err(format!(
-                    "Error while locking client_handles vector: {}",
+                    "Critical error while accepting a client, server has to shut down: Failed to lock client_handles vector: {}",
                     err
                 ))
             }
@@ -188,13 +203,13 @@ fn handle_clients(
                 }
                 UnexpectedMessage(message) => {
                     eprintln!(
-                        "While handshaking, client {} sent an unexpected message: {}",
+                        "While handshaking, client {} tried to authenticat but sent an unexpected message instead: {}",
                         ip_addr, message
                     );
                     continue;
                 }
                 HandshakeError::MessageStreamError(err) => {
-                    eprintln!("While handshaking, an error occured while streaming response of client {}: {}", ip_addr, err);
+                    eprintln!("While handshaking, an error occured while streaming the response of the client {}: {}", ip_addr, err);
                     continue;
                 }
             },

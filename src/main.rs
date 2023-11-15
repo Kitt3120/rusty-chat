@@ -5,6 +5,6 @@ fn main() {
     arguments.remove(0);
     let status = rusty_chat::run(arguments);
     if let Err(err) = status {
-        eprintln!("Error while running Rusty Chat: {}", err);
+        eprintln!("Error while running rusty_chat: {}", err);
     }
 }

@@ -1,12 +1,12 @@
 #[derive(Debug, Clone, PartialEq)]
 pub struct ServerArgs {
     pub address: String,
-    pub port: u8,
-    pub announce_interval: u8,
+    pub port: u16,
+    pub announce_interval: u16,
 }
 
 impl ServerArgs {
-    pub fn new(address: String, port: u8, announce_interval: u8) -> ServerArgs {
+    pub fn new(address: String, port: u16, announce_interval: u16) -> ServerArgs {
         ServerArgs {
             address,
             port,
@@ -27,9 +27,9 @@ impl ServerArgs {
             None => return Err(String::from("No port was provided")),
         };
 
-        let port: u8 = match port.parse() {
+        let port: u16 = match port.parse() {
             Ok(port) => port,
-            Err(err) => return Err(format!("Error parsing port to number: {}", err.to_string())),
+            Err(err) => return Err(format!("Error parsing port to number: {}", err)),
         };
 
         let announce_interval: String = match iterator.next() {
@@ -37,12 +37,12 @@ impl ServerArgs {
             None => return Err(String::from("No announce interval was provided")),
         };
 
-        let announce_interval: u8 = match announce_interval.parse() {
+        let announce_interval: u16 = match announce_interval.parse() {
             Ok(port) => port,
             Err(err) => {
                 return Err(format!(
                     "Error parsing announce interval to number: {}",
-                    err.to_string()
+                    err
                 ))
             }
         };
