@@ -84,3 +84,5 @@ impl Packet for Chat {
         Message::Server(server::Message::Chat(self))
     }
 }
+
+//TODO: Tests

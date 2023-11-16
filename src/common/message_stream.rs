@@ -51,3 +51,5 @@ impl Deref for MessageStream {
         &self.tcp_stream
     }
 }
+
+//TODO: Integration tests

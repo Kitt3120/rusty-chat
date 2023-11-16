@@ -57,3 +57,5 @@ impl Packet for Authenticate {
         Message::Client(client::Message::Authenticate(self))
     }
 }
+
+//TODO: Tests

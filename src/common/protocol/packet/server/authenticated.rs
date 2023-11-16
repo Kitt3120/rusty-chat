@@ -42,3 +42,5 @@ impl Packet for Authenticated {
         Message::Server(server::Message::Authenticated(self))
     }
 }
+
+//TODO: Tests
