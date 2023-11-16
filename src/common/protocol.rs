@@ -3,3 +3,5 @@ pub mod handshake;
 pub mod message;
 pub mod packet;
 pub mod serializable;
+
+pub use message::Message;

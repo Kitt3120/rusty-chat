@@ -51,3 +51,5 @@ impl Packet for Chat {
         Message::Client(client::Message::Chat(self))
     }
 }
+
+//TODO: Tests
