@@ -12,6 +12,6 @@ pub fn run(args: Vec<String>) -> Result<(), String> {
             let server_args = server::args::ServerArgs::parse(args)?;
             server::run(server_args)
         }
-        _ => Err(String::from("Usage:\nrusty_chat <username>: Start client\nrusty_chat <address> <port> <announcement interval>: Start server")),
+        _ => Err(String::from("Invalid amount of arguments provided\nUsage:\nrusty_chat <username>: Start client\nrusty_chat <address> <port> <announcement interval>: Start server")),
     }
 }
