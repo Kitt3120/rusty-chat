@@ -1,18 +1,23 @@
-use std::io::stdin;
+use std::{io::stdin, ops::Deref, sync::Arc};
 
 use crate::common::{cli::command::Command, threading::CancellationToken};
 
 pub struct CommandHandler {
-    commands: Vec<Command>,
+    commands: Vec<Box<dyn Command>>,
 }
 
 impl CommandHandler {
-    pub fn new(commands: Vec<Command>) -> Self {
+    pub fn new(commands: Vec<Box<dyn Command>>) -> Self {
         Self { commands }
     }
 
-    pub fn get_command(&self, name: &str) -> Option<&Command> {
-        self.commands.iter().find(|command| command.name == name)
+    pub fn get_command(&self, name: &str) -> Option<&dyn Command> {
+        let result = self.commands.iter().find(|command| command.name() == name);
+
+        match result {
+            Some(command) => Some(command.deref()),
+            None => None,
+        }
     }
 
     pub fn handle(&self, command: &str, args: &[&str]) -> Result<(), String> {
@@ -29,7 +34,7 @@ impl CommandHandler {
         }
     }
 
-    pub fn handle_stdin(&self, cancellation_token: CancellationToken) -> Result<(), String> {
+    pub fn handle_stdin(&self, cancellation_token: Arc<CancellationToken>) -> Result<(), String> {
         let mut buffer = String::new();
 
         loop {

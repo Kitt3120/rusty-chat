@@ -1,6 +1,6 @@
 use crate::common::cli::{Command, CommandHandler};
 pub struct CommandHandlerBuilder {
-    commands: Vec<Command>,
+    commands: Vec<Box<dyn Command>>,
 }
 
 impl CommandHandlerBuilder {
@@ -10,7 +10,7 @@ impl CommandHandlerBuilder {
         }
     }
 
-    pub fn add_command(mut self, command: Command) -> Self {
+    pub fn add_command(mut self, command: Box<dyn Command>) -> Self {
         self.commands.push(command);
         self
     }
