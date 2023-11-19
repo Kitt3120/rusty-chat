@@ -203,7 +203,7 @@ fn handle_clients(
                 }
                 UnexpectedMessage(message) => {
                     eprintln!(
-                        "While handshaking, client {} tried to authenticat but sent an unexpected message instead: {}",
+                        "While handshaking, client {} tried to authenticate but sent an unexpected message instead: {}",
                         ip_addr, message
                     );
                     continue;
