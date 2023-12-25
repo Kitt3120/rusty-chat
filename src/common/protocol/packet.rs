@@ -1,3 +1,4 @@
+// Packets are structured sender-bound. For example, when the server sends a packet, both server and client will use the server struct.
 pub mod client;
 pub mod server;
 
